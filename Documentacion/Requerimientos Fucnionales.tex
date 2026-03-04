@@ -1,0 +1,114 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{booktabs}
+\usepackage{fancyhdr}
+\usepackage{amssymb}
+
+% Configuración de márgenes
+\geometry{left=2.5cm, right=2.5cm, top=3cm, bottom=3cm}
+
+% Configuración de encabezado y pie de página
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{TKD Management System (TMS)}
+\rhead{Propuesta de Requerimientos}
+\cfoot{\thepage}
+
+% Estilo de títulos
+\titleformat{\section}{\large\bfseries}{}{0em}{}[\titlerule]
+
+\title{
+	\textbf{\Huge TMS: Sede Chilpancingo}\\
+	\large Especificación de Requerimientos Funcionales - Versión 1.1\\
+	\vspace{0.5cm}
+	\small Preparado para: Taekwondo Olímpico México
+}
+\author{Desarrollado por: AB Software Group}
+\date{\today}
+
+\begin{document}
+	
+	\maketitle
+	
+	\section{Introducción}
+	El presente documento define las capacidades operativas del sistema \textbf{TMS (TKD Management System)}. Esta propuesta está diseñada para centralizar la administración de alumnos, el control de grados marciales y la gestión financiera de la Institución Tae Kwon Do Olímpico México Chilpancingo.
+	
+	\section{Módulo A: Gestión Administrativa (ADMIN)}
+	Este módulo centraliza el control total de la academia. A continuación se presentan las funciones propuestas:
+	
+	\begin{itemize}[label=$\square$]
+		\item \textbf{RF-01: Expediente Digital de Alumnos:} Registro de datos personales (Nombre completo, sexo, fecha de nacimiento).
+		\item \textbf{RF-02: Gestión de Ciclo de Vida:} Control de estatus del alumno (Activo, Inactivo, Baja).
+		\item \textbf{RF-03: Control de Grados Marciales:} Registro de fecha de admisión y gestión de cintas/grados actuales.
+		\item \textbf{RF-04: Gestión de Tutoría (Menores de edad):} Vinculación obligatoria de un tutor legal para alumnos menores de 18 años.
+		\item \textbf{RF-05: Directorio de Comunicación:} Registro de números telefónicos de contacto (directo o del tutor).
+		\item \textbf{RF-06: Estructura de Aranceles:} Asignación del monto de colegiatura personalizada según el perfil del alumno y/o monto establecido por la institución.
+		\item \textbf{RF-07: Dashboard de Cobranza:} Monitor de estado de colegiatura (Al corriente / Pendiente / Vencido).
+	\end{itemize}
+	
+	\section{Módulo B: Gestión Dinámica y Edición Masiva}
+	Funciones avanzadas para el administrador que permiten flexibilidad en la gestión del grupo:
+	
+	\begin{itemize}[label=$\square$]
+		\item \textbf{RF-08: Actualización de Grados por Criterio:} Capacidad de promover alumnos de forma individual o grupal (por ejemplo, promover a todos los Cinta Blanca a Cinta Blanca Avanzada tras un examen).
+		\item \textbf{RF-09: Modificación Parametrizada de Costos:} Editar montos de colegiatura basándose en criterios como edad, antigüedad o convenios especiales.
+		\item \textbf{RF-10: Reclasificación Masiva de Estatus:} Cambiar el estado de alumnos (ej. pasar a Inactivo a quienes no han tenido actividad en un periodo definido) de forma automática o manual.
+		\item \textbf{RF-11: Edición Global de Perfiles:} Interfaz para corregir o actualizar cualquier campo del expediente sin restricciones, manteniendo la integridad referencial.
+	\end{itemize}
+	
+	\section{Módulo C: Portal del Alumno}
+	Funciones de consulta para el estudiante o padre de familia:
+	
+	\begin{itemize}[label=$\square$]
+		\item \textbf{RF-12: Gestión de Acceso:} Autenticación segura mediante usuario y contraseña única.
+		\item \textbf{RF-13: Consulta de Estado Financiero:} Visualización de pagos realizados y adeudos pendientes.
+		\item \textbf{RF-14: Perfil de Progreso (Sugerido):} Visualización del tiempo acumulado y grado actual.
+	\end{itemize}
+	
+	\newpage
+	
+	\section{Tabla de Feedback y Ajustes del Cliente}
+	\textit{Esta sección debe ser completada por el cliente para validar la propuesta inicial.}
+	
+	\begin{table}[h!]
+		\centering
+		\begin{tabular}{|p{4cm}|p{2cm}|p{8cm}|}
+			\hline
+			\textbf{Requerimiento ID} & \textbf{Estado} & \textbf{Observaciones / Cambios sugeridos} \\ \hline
+			&  &  \\ \hline
+			&  &  \\ \hline
+			&  &  \\ \hline
+			&  &  \\ \hline
+			&  &  \\ \hline
+			&  &  \\ \hline
+			&  &  \\ \hline
+			&  &  \\ \hline
+			&  &  \\ \hline
+			&  &  \\ \hline
+			&  &  \\ \hline
+			&  &  \\ \hline
+			&  &  \\ \hline
+			&  &  \\ \hline
+		\end{tabular}
+	\end{table}
+	
+	\section{Funciones Adicionales Sugeridas}
+	\textit{Utilice este espacio para describir funciones que no se encuentran en la lista anterior.}
+	\vspace{4cm}
+	
+	\section{Validación}
+	Al firmar este documento, el cliente manifiesta que ha revisado la propuesta y está de acuerdo con los requerimientos marcados como Aprobados.
+	
+	\vspace{2cm}
+	\begin{center}
+		\begin{tabular}{cc}
+			\rule{5cm}{1pt} & \hspace{2cm} \rule{5cm}{1pt} \\
+			Firma del Cliente & \hspace{2cm} Firma del Desarrollador
+		\end{tabular}
+	\end{center}
+	
+\end{document}
