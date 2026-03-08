@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard'
 import Alumnos from './pages/Alumnos'
 import Grados from './pages/Grados'
 import Cobranza from './pages/Cobranza'
+import Examenes from './pages/Examenes'
 import Configuracion from './pages/Configuracion'
 
 export default function App() {
@@ -14,6 +15,7 @@ export default function App() {
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="alumnos" element={<Alumnos />} />
         <Route path="grados" element={<Grados />} />
+        <Route path="examenes" element={<Examenes />} />
         <Route path="cobranza" element={<Cobranza />} />
         <Route path="configuracion" element={<Configuracion />} />
       </Route>

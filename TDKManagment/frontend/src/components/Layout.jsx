@@ -5,6 +5,7 @@ const navItems = [
   { to: '/dashboard', label: 'Inicio', icon: '⌂' },
   { to: '/alumnos', label: 'Alumnos', icon: '👥' },
   { to: '/grados', label: 'Grados', icon: '🥋' },
+  { to: '/examenes', label: 'Exámenes', icon: '📋' },
   { to: '/cobranza', label: 'Cobranza', icon: '💰' },
   { to: '/configuracion', label: 'Configuración', icon: '⚙' },
 ]
