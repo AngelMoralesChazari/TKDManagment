@@ -19,7 +19,7 @@ const alumnosPlaceholder = [
 const estadoStyles = {
   Activo: 'bg-emerald-100 text-emerald-800',
   Inactivo: 'bg-amber-100 text-amber-800',
-  Baja: 'bg-slate-100 text-slate-600',
+  Baja: 'bg-red-200 text-red-600',
 }
 
 export default function Alumnos() {
