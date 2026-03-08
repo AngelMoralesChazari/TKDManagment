@@ -58,7 +58,11 @@ export default function Layout() {
       </aside>
 
       {/* Contenido principal */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div
+        className="flex-1 flex flex-col min-w-0 bg-cover bg-center bg-no-repeat bg-fixed"
+        style={{ backgroundImage: 'url(/wallpaper.png)' }}
+      >
+        <div className="flex-1 flex flex-col min-h-full bg-white/40 backdrop-blur-[2px]">
         <header className="sticky top-0 z-20 bg-white/95 backdrop-blur border-b border-slate-200 px-4 py-3 flex items-center gap-4">
           <button
             type="button"
@@ -74,6 +78,7 @@ export default function Layout() {
         <main className="flex-1 p-4 lg:p-6 overflow-auto">
           <Outlet />
         </main>
+        </div>
       </div>
     </div>
   )
