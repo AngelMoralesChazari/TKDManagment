@@ -5,7 +5,7 @@ const gradosPlaceholder = [
   { orden: 4, nombre: 'Verde', color: 'bg-green-500', alumnos: 11 },
   { orden: 5, nombre: 'Azul', color: 'bg-blue-600', alumnos: 11 },
   { orden: 6, nombre: 'Roja', color: 'bg-red-600', alumnos: 8 },
-  { orden: 7, nombre: 'Poom', color: 'bg-slate-700', alumnos: 5 },
+  { orden: 7, nombre: 'Poom', color: 'poom', alumnos: 5 },
   { orden: 8, nombre: 'Negra', color: 'bg-slate-900', alumnos: 4 },
 ]
 
@@ -23,7 +23,14 @@ export default function Grados() {
             key={g.orden}
             className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4"
           >
-            <div className={`w-14 h-14 rounded-full shrink-0 ${g.color} ring-2 ring-slate-200`} />
+            {g.color === 'poom' ? (
+              <div className="w-14 h-14 rounded-full shrink-0 overflow-hidden flex ring-2 ring-slate-200">
+                <div className="w-1/2 h-full bg-red-600" />
+                <div className="w-1/2 h-full bg-slate-900" />
+              </div>
+            ) : (
+              <div className={`w-14 h-14 rounded-full shrink-0 ${g.color} ring-2 ring-slate-200`} />
+            )}
             <div className="min-w-0 flex-1">
               <p className="font-semibold text-slate-900">Cinta {g.nombre}</p>
               <p className="text-sm text-slate-500">{g.alumnos} alumnos</p>
