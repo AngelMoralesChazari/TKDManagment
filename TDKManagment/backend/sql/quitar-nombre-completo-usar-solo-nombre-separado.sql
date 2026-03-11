@@ -11,7 +11,7 @@ ALTER TABLE alumno ADD COLUMN IF NOT EXISTS operaciones_cuales TEXT;
 ALTER TABLE alumno ADD COLUMN IF NOT EXISTS terapias_sn BOOLEAN DEFAULT false;
 ALTER TABLE alumno ADD COLUMN IF NOT EXISTS terapias_cuales TEXT;
 
--- 2) Pasar datos de nombre_completo a nombre (para filas que solo tienen nombre_completo)
+-- 2) Pasar datos de nombre_completo a nombre 
 UPDATE alumno
 SET nombre = TRIM(nombre_completo)
 WHERE (nombre IS NULL OR nombre = '')
