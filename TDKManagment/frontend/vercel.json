@@ -1,13 +1,7 @@
 {
-  "buildCommand": "cd TDKManagment/frontend && npm install && npm run build",
-  "outputDirectory": "TDKManagment/frontend/dist",
-  "installCommand": "cd TDKManagment && npm install",
-  "functions": {
-    "TDKManagment/api/*.js": {
-      "maxDuration": 10
-    }
-  },
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
