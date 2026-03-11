@@ -1,0 +1,3 @@
+-- Ya no se usa: tu base de datos tiene su propio esquema con las tablas
+-- alumno, tutor, colegiatura, grado, historial_grado, pago.
+-- Usa seed-grados.sql para insertar las cintas en la tabla grado.
