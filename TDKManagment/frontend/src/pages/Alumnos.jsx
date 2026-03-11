@@ -116,11 +116,12 @@ export default function Alumnos() {
       })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
-        throw new Error(data.error || 'Error al registrar')
+        const msg = data.detalle ? `${data.error || 'Error al registrar'}: ${data.detalle}` : (data.error || 'Error al registrar')
+        throw new Error(msg)
       }
       const nuevo = await res.json()
-      setAlumnos((prev) => [nuevo, ...prev])
       setModalAbierto(false)
+      await cargarAlumnos()
       setForm((f) => ({
         ...f,
         nombre: '',
@@ -141,8 +142,10 @@ export default function Alumnos() {
         terapias_sn: false,
         terapias_cuales: '',
       }))
-    } catch (err) {
+      } catch (err) {
       setError(err.message)
+      setEnviando(false)
+      return
     } finally {
       setEnviando(false)
     }
