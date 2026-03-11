@@ -19,9 +19,22 @@ export default function Alumnos() {
   const [enviando, setEnviando] = useState(false)
   const [form, setForm] = useState({
     nombre: '',
+    apellido_paterno: '',
+    apellido_materno: '',
     grado: '',
     estado: 'Activo',
     fecha_ingreso: new Date().toISOString().slice(0, 10),
+    fecha_nacimiento: '',
+    curp: '',
+    telefono: '',
+    alergias_sn: false,
+    alergias_cuales: '',
+    fracturas_sn: false,
+    fracturas_cuales: '',
+    operaciones_sn: false,
+    operaciones_cuales: '',
+    terapias_sn: false,
+    terapias_cuales: '',
   })
 
   const cargarGrados = async () => {
@@ -72,17 +85,33 @@ export default function Alumnos() {
 
   const handleCrear = async (e) => {
     e.preventDefault()
-    if (!form.nombre.trim()) return
+    const nom = form.nombre.trim()
+    const ap = form.apellido_paterno.trim()
+    const am = form.apellido_materno.trim()
+    if (!nom && !ap && !am) return
     setEnviando(true)
     try {
       const res = await fetch(API_ALUMNOS, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          nombre: form.nombre.trim(),
+          nombre: nom || undefined,
+          apellido_paterno: ap || undefined,
+          apellido_materno: am || undefined,
           grado: form.grado,
           estado: form.estado,
           fecha_ingreso: form.fecha_ingreso || undefined,
+          fecha_nacimiento: form.fecha_nacimiento || undefined,
+          curp: form.curp.trim() || undefined,
+          telefono: form.telefono.trim() || undefined,
+          alergias_sn: form.alergias_sn,
+          alergias_cuales: form.alergias_cuales.trim() || undefined,
+          fracturas_sn: form.fracturas_sn,
+          fracturas_cuales: form.fracturas_cuales.trim() || undefined,
+          operaciones_sn: form.operaciones_sn,
+          operaciones_cuales: form.operaciones_cuales.trim() || undefined,
+          terapias_sn: form.terapias_sn,
+          terapias_cuales: form.terapias_cuales.trim() || undefined,
         }),
       })
       if (!res.ok) {
@@ -92,7 +121,26 @@ export default function Alumnos() {
       const nuevo = await res.json()
       setAlumnos((prev) => [nuevo, ...prev])
       setModalAbierto(false)
-      setForm((f) => ({ ...f, nombre: '', grado: grados[0]?.nombre_grado ?? '', estado: 'Activo', fecha_ingreso: new Date().toISOString().slice(0, 10) }))
+      setForm((f) => ({
+        ...f,
+        nombre: '',
+        apellido_paterno: '',
+        apellido_materno: '',
+        grado: grados[0]?.nombre_grado ?? '',
+        estado: 'Activo',
+        fecha_ingreso: new Date().toISOString().slice(0, 10),
+        fecha_nacimiento: '',
+        curp: '',
+        telefono: '',
+        alergias_sn: false,
+        alergias_cuales: '',
+        fracturas_sn: false,
+        fracturas_cuales: '',
+        operaciones_sn: false,
+        operaciones_cuales: '',
+        terapias_sn: false,
+        terapias_cuales: '',
+      }))
     } catch (err) {
       setError(err.message)
     } finally {
@@ -188,16 +236,78 @@ export default function Alumnos() {
                 Grados: {errorGrados}
               </p>
             )}
-            <form onSubmit={handleCrear} className="space-y-4">
+            <form onSubmit={handleCrear} className="space-y-4 max-h-[85vh] overflow-y-auto pr-1">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Nombre</label>
+                  <input
+                    type="text"
+                    value={form.nombre}
+                    onChange={(e) => setForm((p) => ({ ...p, nombre: e.target.value }))}
+                    className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900"
+                    placeholder="Ej. Ana"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Apellido paterno</label>
+                  <input
+                    type="text"
+                    value={form.apellido_paterno}
+                    onChange={(e) => setForm((p) => ({ ...p, apellido_paterno: e.target.value }))}
+                    className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900"
+                    placeholder="Ej. Martínez"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Apellido materno</label>
+                  <input
+                    type="text"
+                    value={form.apellido_materno}
+                    onChange={(e) => setForm((p) => ({ ...p, apellido_materno: e.target.value }))}
+                    className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900"
+                    placeholder="Ej. López"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Fecha de nacimiento</label>
+                  <input
+                    type="date"
+                    value={form.fecha_nacimiento}
+                    onChange={(e) => setForm((p) => ({ ...p, fecha_nacimiento: e.target.value }))}
+                    className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Fecha de ingreso</label>
+                  <input
+                    type="date"
+                    value={form.fecha_ingreso}
+                    onChange={(e) => setForm((p) => ({ ...p, fecha_ingreso: e.target.value }))}
+                    className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900"
+                  />
+                </div>
+              </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Nombre completo</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">CURP</label>
                 <input
                   type="text"
-                  value={form.nombre}
-                  onChange={(e) => setForm((p) => ({ ...p, nombre: e.target.value }))}
+                  value={form.curp}
+                  onChange={(e) => setForm((p) => ({ ...p, curp: e.target.value }))}
                   className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900"
-                  placeholder="Ej. Ana Martínez"
-                  required
+                  placeholder="Ej. MALU960101HDFLRN01"
+                  maxLength={18}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Teléfono de contacto</label>
+                <input
+                  type="tel"
+                  value={form.telefono}
+                  onChange={(e) => setForm((p) => ({ ...p, telefono: e.target.value }))}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900"
+                  placeholder="Ej. 5512345678"
                 />
               </div>
               <div>
@@ -227,15 +337,97 @@ export default function Alumnos() {
                   ))}
                 </select>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Fecha de ingreso</label>
-                <input
-                  type="date"
-                  value={form.fecha_ingreso}
-                  onChange={(e) => setForm((p) => ({ ...p, fecha_ingreso: e.target.value }))}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900"
-                />
+
+              <div className="border-t border-slate-200 pt-4 mt-2">
+                <h4 className="text-sm font-semibold text-slate-800 mb-3">Historial de salud</h4>
+                <div className="space-y-3">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <input
+                        type="checkbox"
+                        id="alergias_sn"
+                        checked={form.alergias_sn}
+                        onChange={(e) => setForm((p) => ({ ...p, alergias_sn: e.target.checked }))}
+                        className="rounded border-slate-300"
+                      />
+                      <label htmlFor="alergias_sn" className="text-sm font-medium text-slate-700">Alergias</label>
+                    </div>
+                    {form.alergias_sn && (
+                      <input
+                        type="text"
+                        value={form.alergias_cuales}
+                        onChange={(e) => setForm((p) => ({ ...p, alergias_cuales: e.target.value }))}
+                        className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 text-sm"
+                        placeholder="¿Cuáles?"
+                      />
+                    )}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <input
+                        type="checkbox"
+                        id="fracturas_sn"
+                        checked={form.fracturas_sn}
+                        onChange={(e) => setForm((p) => ({ ...p, fracturas_sn: e.target.checked }))}
+                        className="rounded border-slate-300"
+                      />
+                      <label htmlFor="fracturas_sn" className="text-sm font-medium text-slate-700">Fracturas</label>
+                    </div>
+                    {form.fracturas_sn && (
+                      <input
+                        type="text"
+                        value={form.fracturas_cuales}
+                        onChange={(e) => setForm((p) => ({ ...p, fracturas_cuales: e.target.value }))}
+                        className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 text-sm"
+                        placeholder="¿Cuáles?"
+                      />
+                    )}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <input
+                        type="checkbox"
+                        id="operaciones_sn"
+                        checked={form.operaciones_sn}
+                        onChange={(e) => setForm((p) => ({ ...p, operaciones_sn: e.target.checked }))}
+                        className="rounded border-slate-300"
+                      />
+                      <label htmlFor="operaciones_sn" className="text-sm font-medium text-slate-700">Operaciones</label>
+                    </div>
+                    {form.operaciones_sn && (
+                      <input
+                        type="text"
+                        value={form.operaciones_cuales}
+                        onChange={(e) => setForm((p) => ({ ...p, operaciones_cuales: e.target.value }))}
+                        className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 text-sm"
+                        placeholder="¿Cuáles?"
+                      />
+                    )}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <input
+                        type="checkbox"
+                        id="terapias_sn"
+                        checked={form.terapias_sn}
+                        onChange={(e) => setForm((p) => ({ ...p, terapias_sn: e.target.checked }))}
+                        className="rounded border-slate-300"
+                      />
+                      <label htmlFor="terapias_sn" className="text-sm font-medium text-slate-700">Terapias</label>
+                    </div>
+                    {form.terapias_sn && (
+                      <input
+                        type="text"
+                        value={form.terapias_cuales}
+                        onChange={(e) => setForm((p) => ({ ...p, terapias_cuales: e.target.value }))}
+                        className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 text-sm"
+                        placeholder="¿Cuáles?"
+                      />
+                    )}
+                  </div>
+                </div>
               </div>
+
               <div className="flex gap-3 pt-2">
                 <button
                   type="button"
@@ -246,7 +438,7 @@ export default function Alumnos() {
                 </button>
                 <button
                   type="submit"
-                  disabled={enviando || !form.nombre.trim()}
+                  disabled={enviando || (!form.nombre.trim() && !form.apellido_paterno.trim() && !form.apellido_materno.trim())}
                   className="flex-1 px-4 py-2.5 rounded-lg bg-primary-600 text-white font-medium hover:bg-primary-700 disabled:opacity-50"
                 >
                   {enviando ? 'Guardando...' : 'Registrar'}

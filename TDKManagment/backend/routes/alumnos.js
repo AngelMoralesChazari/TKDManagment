@@ -9,7 +9,10 @@ router.get('/', async (req, res) => {
     const result = await query(`
       SELECT
         a.id_alumno AS id,
-        a.nombre_completo AS nombre,
+        TRIM(COALESCE(
+          NULLIF(TRIM(COALESCE(a.nombre,'') || ' ' || COALESCE(a.apellido_paterno,'') || ' ' || COALESCE(a.apellido_materno,'')), ''),
+          a.nombre_completo
+        )) AS nombre,
         COALESCE(g.nombre_grado, 'Sin grado') AS grado,
         COALESCE(a.estatus, 'Activo') AS estado,
         a.fecha_admision AS ingreso
@@ -43,10 +46,34 @@ router.get('/', async (req, res) => {
 
 // POST /api/alumnos — crear alumno (insertar en alumno y asignar grado en historial_grado)
 router.post('/', async (req, res) => {
-  const { nombre, grado, estado, fecha_ingreso } = req.body
-  if (!nombre || !grado || !estado) {
+  const {
+    nombre,
+    apellido_paterno,
+    apellido_materno,
+    grado,
+    estado,
+    fecha_ingreso,
+    fecha_nacimiento,
+    curp,
+    telefono,
+    alergias_sn,
+    alergias_cuales,
+    fracturas_sn,
+    fracturas_cuales,
+    operaciones_sn,
+    operaciones_cuales,
+    terapias_sn,
+    terapias_cuales,
+  } = req.body
+
+  const nom = (nombre || '').trim()
+  const ap = (apellido_paterno || '').trim()
+  const am = (apellido_materno || '').trim()
+  const nombreCompleto = [nom, ap, am].filter(Boolean).join(' ') || null
+
+  if (!nombreCompleto || !grado || !estado) {
     return res.status(400).json({
-      error: 'Faltan datos: nombre, grado y estado son obligatorios',
+      error: 'Faltan datos: al menos nombre, grado y estado son obligatorios',
     })
   }
   const fechaAdmision = fecha_ingreso || new Date().toISOString().slice(0, 10)
@@ -58,12 +85,25 @@ router.post('/', async (req, res) => {
     )
     const idGrado = gradoRes.rows[0]?.id_grado ?? null
 
-    // 2. Insertar alumno (id_tutor e id_colegiatura opcionales, en NULL)
+    // 2. Insertar alumno con todos los campos (nombre desglosado, curp, historial de salud)
     const insertAlumno = await query(
-      `INSERT INTO alumno (nombre_completo, sexo, fecha_nacimiento, fecha_admision, estatus, telefono, id_tutor, id_colegiatura)
-       VALUES ($1, NULL, NULL, $2, $3, NULL, NULL, NULL)
-       RETURNING id_alumno, nombre_completo, estatus, fecha_admision`,
-      [nombre.trim(), fechaAdmision, estado]
+      `INSERT INTO alumno (
+        nombre_completo, nombre, apellido_paterno, apellido_materno,
+        sexo, fecha_nacimiento, fecha_admision, estatus, telefono, curp,
+        alergias_sn, alergias_cuales, fracturas_sn, fracturas_cuales,
+        operaciones_sn, operaciones_cuales, terapias_sn, terapias_cuales,
+        id_tutor, id_colegiatura
+      ) VALUES (
+        $1, $2, $3, $4, NULL, $5, $6, $7, $8, $9,
+        $10, $11, $12, $13, $14, $15, $16, $17, NULL, NULL
+      )
+      RETURNING id_alumno, nombre_completo, estatus, fecha_admision`,
+      [
+        nombreCompleto, nom || null, ap || null, am || null,
+        fecha_nacimiento || null, fechaAdmision, estado, telefono || null, (curp || '').trim() || null,
+        Boolean(alergias_sn), alergias_cuales || null, Boolean(fracturas_sn), fracturas_cuales || null,
+        Boolean(operaciones_sn), operaciones_cuales || null, Boolean(terapias_sn), terapias_cuales || null,
+      ]
     )
     const alumno = insertAlumno.rows[0]
     const idAlumno = alumno.id_alumno

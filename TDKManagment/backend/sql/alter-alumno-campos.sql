@@ -1,0 +1,24 @@
+-- Migración: agregar campos de nombre desglosado, CURP e historial de salud.
+-- Ejecuta este script en pgAdmin (PostgreSQL local) y en Supabase (SQL Editor)
+-- para que la tabla alumno tenga los nuevos requisitos de registro.
+
+-- Nombre desglosado (se mantiene nombre_completo para compatibilidad; se rellena desde estos)
+ALTER TABLE alumno ADD COLUMN IF NOT EXISTS nombre VARCHAR(50);
+ALTER TABLE alumno ADD COLUMN IF NOT EXISTS apellido_paterno VARCHAR(50);
+ALTER TABLE alumno ADD COLUMN IF NOT EXISTS apellido_materno VARCHAR(50);
+
+-- CURP
+ALTER TABLE alumno ADD COLUMN IF NOT EXISTS curp VARCHAR(18);
+
+-- Historial de salud: si/no + descripción
+ALTER TABLE alumno ADD COLUMN IF NOT EXISTS alergias_sn BOOLEAN DEFAULT false;
+ALTER TABLE alumno ADD COLUMN IF NOT EXISTS alergias_cuales TEXT;
+
+ALTER TABLE alumno ADD COLUMN IF NOT EXISTS fracturas_sn BOOLEAN DEFAULT false;
+ALTER TABLE alumno ADD COLUMN IF NOT EXISTS fracturas_cuales TEXT;
+
+ALTER TABLE alumno ADD COLUMN IF NOT EXISTS operaciones_sn BOOLEAN DEFAULT false;
+ALTER TABLE alumno ADD COLUMN IF NOT EXISTS operaciones_cuales TEXT;
+
+ALTER TABLE alumno ADD COLUMN IF NOT EXISTS terapias_sn BOOLEAN DEFAULT false;
+ALTER TABLE alumno ADD COLUMN IF NOT EXISTS terapias_cuales TEXT;
