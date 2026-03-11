@@ -16,6 +16,8 @@ export default function Alumnos() {
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
   const [modalAbierto, setModalAbierto] = useState(false)
+  const [modalEditarAbierto, setModalEditarAbierto] = useState(false)
+  const [alumnoEditandoId, setAlumnoEditandoId] = useState(null)
   const [enviando, setEnviando] = useState(false)
   const [form, setForm] = useState({
     nombre: '',
@@ -82,6 +84,43 @@ export default function Alumnos() {
       setForm((f) => ({ ...f, grado: grados[0].nombre_grado }))
     }
   }, [modalAbierto, grados])
+
+  const abrirEditar = async (alumnoId) => {
+    setError(null)
+    setEnviando(true)
+    try {
+      const res = await fetch(`${API_ALUMNOS}/${alumnoId}`)
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data.error || 'No se pudo cargar el alumno')
+      }
+      setAlumnoEditandoId(alumnoId)
+      setForm({
+        nombre: data.nombre || '',
+        apellido_paterno: data.apellido_paterno || '',
+        apellido_materno: data.apellido_materno || '',
+        grado: data.grado || '',
+        estado: data.estado || 'Activo',
+        fecha_ingreso: data.fecha_admision || new Date().toISOString().slice(0, 10),
+        fecha_nacimiento: data.fecha_nacimiento || '',
+        curp: data.curp || '',
+        telefono: data.telefono || '',
+        alergias_sn: !!data.alergias_sn,
+        alergias_cuales: data.alergias_cuales || '',
+        fracturas_sn: !!data.fracturas_sn,
+        fracturas_cuales: data.fracturas_cuales || '',
+        operaciones_sn: !!data.operaciones_sn,
+        operaciones_cuales: data.operaciones_cuales || '',
+        terapias_sn: !!data.terapias_sn,
+        terapias_cuales: data.terapias_cuales || '',
+      })
+      setModalEditarAbierto(true)
+    } catch (e) {
+      setError(e.message || 'No se pudo cargar el alumno')
+    } finally {
+      setEnviando(false)
+    }
+  }
 
   const handleCrear = async (e) => {
     e.preventDefault()
@@ -210,7 +249,11 @@ export default function Alumnos() {
                     </td>
                     <td className="px-4 py-3 text-slate-600 hidden sm:table-cell">{a.ingreso}</td>
                     <td className="px-4 py-3">
-                      <button type="button" className="text-primary-600 hover:text-primary-700 text-sm font-medium">
+                      <button
+                        type="button"
+                        onClick={() => abrirEditar(a.id)}
+                        className="text-primary-600 hover:text-primary-700 text-sm font-medium"
+                      >
                         Ver
                       </button>
                     </td>
@@ -445,6 +488,286 @@ export default function Alumnos() {
                   className="flex-1 px-4 py-2.5 rounded-lg bg-primary-600 text-white font-medium hover:bg-primary-700 disabled:opacity-50"
                 >
                   {enviando ? 'Guardando...' : 'Registrar'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Ver / Editar alumno */}
+      {modalEditarAbierto && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+          onClick={() => {
+            setModalEditarAbierto(false)
+            setAlumnoEditandoId(null)
+          }}
+          aria-hidden="true"
+        >
+          <div
+            className="bg-white rounded-xl border border-slate-200 shadow-xl max-w-md w-full p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">Detalle de alumno</h3>
+            {errorGrados && (
+              <p className="mb-4 text-sm text-amber-700 bg-amber-50 rounded-lg px-3 py-2">
+                Grados: {errorGrados}
+              </p>
+            )}
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault()
+                if (!alumnoEditandoId) return
+                const nom = form.nombre.trim()
+                const ap = form.apellido_paterno.trim()
+                const am = form.apellido_materno.trim()
+                if (!nom && !ap && !am) return
+                setEnviando(true)
+                try {
+                  const res = await fetch(`${API_ALUMNOS}/${alumnoEditandoId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      nombre: nom || undefined,
+                      apellido_paterno: ap || undefined,
+                      apellido_materno: am || undefined,
+                      grado: form.grado,
+                      estado: form.estado,
+                      fecha_ingreso: form.fecha_ingreso || undefined,
+                      fecha_nacimiento: form.fecha_nacimiento || undefined,
+                      curp: form.curp.trim() || undefined,
+                      telefono: form.telefono.trim() || undefined,
+                      alergias_sn: form.alergias_sn,
+                      alergias_cuales: form.alergias_cuales.trim() || undefined,
+                      fracturas_sn: form.fracturas_sn,
+                      fracturas_cuales: form.fracturas_cuales.trim() || undefined,
+                      operaciones_sn: form.operaciones_sn,
+                      operaciones_cuales: form.operaciones_cuales.trim() || undefined,
+                      terapias_sn: form.terapias_sn,
+                      terapias_cuales: form.terapias_cuales.trim() || undefined,
+                    }),
+                  })
+                  const data = await res.json().catch(() => ({}))
+                  if (!res.ok) {
+                    const msg = data.detalle ? `${data.error || 'Error al actualizar'}: ${data.detalle}` : (data.error || 'Error al actualizar')
+                    throw new Error(msg)
+                  }
+                  setModalEditarAbierto(false)
+                  setAlumnoEditandoId(null)
+                  await cargarAlumnos()
+                } catch (e) {
+                  setError(e.message || 'No se pudo actualizar el alumno')
+                } finally {
+                  setEnviando(false)
+                }
+              }}
+              className="space-y-4 max-h-[85vh] overflow-y-auto pr-1"
+            >
+              {/* Reutilizamos el mismo formulario que para crear */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Nombre</label>
+                  <input
+                    type="text"
+                    value={form.nombre}
+                    onChange={(e) => setForm((p) => ({ ...p, nombre: e.target.value }))}
+                    className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Apellido paterno</label>
+                  <input
+                    type="text"
+                    value={form.apellido_paterno}
+                    onChange={(e) => setForm((p) => ({ ...p, apellido_paterno: e.target.value }))}
+                    className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Apellido materno</label>
+                  <input
+                    type="text"
+                    value={form.apellido_materno}
+                    onChange={(e) => setForm((p) => ({ ...p, apellido_materno: e.target.value }))}
+                    className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Fecha de nacimiento</label>
+                  <input
+                    type="date"
+                    value={form.fecha_nacimiento}
+                    onChange={(e) => setForm((p) => ({ ...p, fecha_nacimiento: e.target.value }))}
+                    className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Fecha de ingreso</label>
+                  <input
+                    type="date"
+                    value={form.fecha_ingreso}
+                    onChange={(e) => setForm((p) => ({ ...p, fecha_ingreso: e.target.value }))}
+                    className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">CURP</label>
+                <input
+                  type="text"
+                  value={form.curp}
+                  onChange={(e) => setForm((p) => ({ ...p, curp: e.target.value }))}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900"
+                  maxLength={18}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Teléfono de contacto</label>
+                <input
+                  type="tel"
+                  value={form.telefono}
+                  onChange={(e) => setForm((p) => ({ ...p, telefono: e.target.value }))}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Grado / Cinta</label>
+                <select
+                  value={form.grado}
+                  onChange={(e) => setForm((p) => ({ ...p, grado: e.target.value }))}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900"
+                >
+                  {grados.length === 0 && (
+                    <option value="">— Sin grados. Ejecuta seed-grados.sql en pgAdmin —</option>
+                  )}
+                  {grados.map((g) => (
+                    <option key={g.id_grado} value={g.nombre_grado}>{g.nombre_grado}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Estado</label>
+                <select
+                  value={form.estado}
+                  onChange={(e) => setForm((p) => ({ ...p, estado: e.target.value }))}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900"
+                >
+                  {ESTADOS.map((e) => (
+                    <option key={e} value={e}>{e}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="border-t border-slate-200 pt-4 mt-2">
+                <h4 className="text-sm font-semibold text-slate-800 mb-3">Historial de salud</h4>
+                <div className="space-y-3">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <input
+                        type="checkbox"
+                        id="alergias_sn_edit"
+                        checked={form.alergias_sn}
+                        onChange={(e) => setForm((p) => ({ ...p, alergias_sn: e.target.checked }))}
+                        className="rounded border-slate-300"
+                      />
+                      <label htmlFor="alergias_sn_edit" className="text-sm font-medium text-slate-700">Alergias</label>
+                    </div>
+                    {form.alergias_sn && (
+                      <input
+                        type="text"
+                        value={form.alergias_cuales}
+                        onChange={(e) => setForm((p) => ({ ...p, alergias_cuales: e.target.value }))}
+                        className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 text-sm"
+                        placeholder="¿Cuáles?"
+                      />
+                    )}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <input
+                        type="checkbox"
+                        id="fracturas_sn_edit"
+                        checked={form.fracturas_sn}
+                        onChange={(e) => setForm((p) => ({ ...p, fracturas_sn: e.target.checked }))}
+                        className="rounded border-slate-300"
+                      />
+                      <label htmlFor="fracturas_sn_edit" className="text-sm font-medium text-slate-700">Fracturas</label>
+                    </div>
+                    {form.fracturas_sn && (
+                      <input
+                        type="text"
+                        value={form.fracturas_cuales}
+                        onChange={(e) => setForm((p) => ({ ...p, fracturas_cuales: e.target.value }))}
+                        className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 text-sm"
+                        placeholder="¿Cuáles?"
+                      />
+                    )}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <input
+                        type="checkbox"
+                        id="operaciones_sn_edit"
+                        checked={form.operaciones_sn}
+                        onChange={(e) => setForm((p) => ({ ...p, operaciones_sn: e.target.checked }))}
+                        className="rounded border-slate-300"
+                      />
+                      <label htmlFor="operaciones_sn_edit" className="text-sm font-medium text-slate-700">Operaciones</label>
+                    </div>
+                    {form.operaciones_sn && (
+                      <input
+                        type="text"
+                        value={form.operaciones_cuales}
+                        onChange={(e) => setForm((p) => ({ ...p, operaciones_cuales: e.target.value }))}
+                        className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 text-sm"
+                        placeholder="¿Cuáles?"
+                      />
+                    )}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <input
+                        type="checkbox"
+                        id="terapias_sn_edit"
+                        checked={form.terapias_sn}
+                        onChange={(e) => setForm((p) => ({ ...p, terapias_sn: e.target.checked }))}
+                        className="rounded border-slate-300"
+                      />
+                      <label htmlFor="terapias_sn_edit" className="text-sm font-medium text-slate-700">Terapias</label>
+                    </div>
+                    {form.terapias_sn && (
+                      <input
+                        type="text"
+                        value={form.terapias_cuales}
+                        onChange={(e) => setForm((p) => ({ ...p, terapias_cuales: e.target.value }))}
+                        className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 text-sm"
+                        placeholder="¿Cuáles?"
+                      />
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setModalEditarAbierto(false)
+                    setAlumnoEditandoId(null)
+                  }}
+                  className="flex-1 px-4 py-2.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50"
+                >
+                  Cerrar
+                </button>
+                <button
+                  type="submit"
+                  disabled={enviando || (!form.nombre.trim() && !form.apellido_paterno.trim() && !form.apellido_materno.trim())}
+                  className="flex-1 px-4 py-2.5 rounded-lg bg-primary-600 text-white font-medium hover:bg-primary-700 disabled:opacity-50"
+                >
+                  {enviando ? 'Guardando...' : 'Guardar cambios'}
                 </button>
               </div>
             </form>
