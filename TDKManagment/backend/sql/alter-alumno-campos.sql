@@ -1,4 +1,4 @@
--- Nombre desglosado (se mantiene nombre_completo para compatibilidad; se rellena desde estos)
+-- Nombre desglosado
 ALTER TABLE alumno ADD COLUMN IF NOT EXISTS nombre VARCHAR(50);
 ALTER TABLE alumno ADD COLUMN IF NOT EXISTS apellido_paterno VARCHAR(50);
 ALTER TABLE alumno ADD COLUMN IF NOT EXISTS apellido_materno VARCHAR(50);
