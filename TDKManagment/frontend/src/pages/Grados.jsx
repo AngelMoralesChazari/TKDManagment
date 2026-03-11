@@ -176,7 +176,7 @@ export default function Grados() {
                 Alumnos en {seleccionBase}
               </h3>
               <p className="text-sm text-slate-600">
-                Filtra entre grado base (principiantes) y grados avanzados de este color.
+                Filtra entre grado y grados avanzados.
               </p>
             </div>
             <div className="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-0.5">
