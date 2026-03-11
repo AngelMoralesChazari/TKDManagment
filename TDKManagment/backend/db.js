@@ -13,8 +13,10 @@ const { Pool } = pg
 const pool = process.env.DATABASE_URL
   ? new Pool({
       connectionString: process.env.DATABASE_URL,
-      // Supabase/hosted Postgres suele requerir SSL
-      ssl: process.env.DATABASE_URL?.includes('localhost') ? false : { rejectUnauthorized: false },
+      // Supabase/hosted Postgres suele requerir SSL (y a veces cadena con certificados intermedios)
+      ssl: process.env.DATABASE_URL?.includes('localhost')
+        ? false
+        : { rejectUnauthorized: false },
     })
   : new Pool({
       host: process.env.PGHOST || 'localhost',
@@ -22,6 +24,9 @@ const pool = process.env.DATABASE_URL
       user: process.env.PGUSER || 'postgres',
       password: process.env.PGPASSWORD || '',
       database: process.env.PGDATABASE || 'tdk_management',
+      ssl: (process.env.PGHOST || 'localhost') === 'localhost'
+        ? false
+        : { rejectUnauthorized: false },
     })
 
 export async function query(text, params) {
