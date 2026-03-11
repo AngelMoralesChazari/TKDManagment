@@ -31,8 +31,13 @@ router.get('/', async (req, res) => {
     }))
     res.json(rows)
   } catch (err) {
-    console.error(err)
-    res.status(500).json({ error: 'Error al obtener alumnos' })
+    console.error('Error en GET /api/alumnos:', err)
+    res.status(500).json({
+      error: 'Error al obtener alumnos',
+      detalle: err?.message || String(err),
+      code: err?.code,
+      name: err?.name,
+    })
   }
 })
 
@@ -80,8 +85,13 @@ router.post('/', async (req, res) => {
       ingreso: formatFecha(alumno.fecha_admision),
     })
   } catch (err) {
-    console.error(err)
-    res.status(500).json({ error: 'Error al registrar alumno' })
+    console.error('Error en POST /api/alumnos:', err)
+    res.status(500).json({
+      error: 'Error al registrar alumno',
+      detalle: err?.message || String(err),
+      code: err?.code,
+      name: err?.name,
+    })
   }
 })
 

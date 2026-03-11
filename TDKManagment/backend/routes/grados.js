@@ -11,10 +11,12 @@ router.get('/', async (req, res) => {
     )
     res.json(result.rows)
   } catch (err) {
-    console.error('Error en GET /api/grados:', err.message)
+    console.error('Error en GET /api/grados:', err)
     res.status(500).json({
       error: 'Error al obtener grados',
-      detalle: err.message,
+      detalle: err?.message || String(err),
+      code: err?.code,
+      name: err?.name,
     })
   }
 })
