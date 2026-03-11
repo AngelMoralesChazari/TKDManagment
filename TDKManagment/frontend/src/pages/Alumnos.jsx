@@ -1,9 +1,5 @@
 import { useState, useEffect } from 'react'
-
-// Usar la URL del backend en desarrollo para que funcione aunque el proxy falle
-const API_BASE = import.meta.env.DEV ? 'http://localhost:3001' : ''
-const API_ALUMNOS = `${API_BASE}/api/alumnos`
-const API_GRADOS = `${API_BASE}/api/grados`
+import { API_ALUMNOS, API_GRADOS } from '../api.js'
 
 const estadoStyles = {
   Activo: 'bg-emerald-100 text-emerald-800',
@@ -40,7 +36,7 @@ export default function Alumnos() {
         setErrorGrados(data.detalle || data.error || 'No se pudieron cargar los grados')
       }
     } catch (e) {
-      setErrorGrados(e.message || 'Revisa que el backend esté en http://localhost:3001')
+      setErrorGrados(e.message || 'Revisa que el backend esté en marcha')
     }
   }
 

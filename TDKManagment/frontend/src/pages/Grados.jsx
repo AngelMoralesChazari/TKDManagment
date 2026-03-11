@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
-
-const API_GRADOS = import.meta.env.DEV ? 'http://localhost:3001/api/grados' : '/api/grados'
+import { API_GRADOS } from '../api.js'
 
 function colorClase(nombre) {
   if (!nombre) return 'bg-slate-400'
