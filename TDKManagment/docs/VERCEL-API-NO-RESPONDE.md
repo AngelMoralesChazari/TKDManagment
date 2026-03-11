@@ -2,7 +2,9 @@
 
 Eso significa que las peticiones a `/api/grados` y `/api/alumnos` están recibiendo **HTML** (la página de la app) en lugar de **JSON**. La API no se está ejecutando en esa URL.
 
-**Importante:** Si en Supabase ves "connection authorized", la base está bien; el fallo es que Vercel está sirviendo la SPA para `/api/*` en lugar de ejecutar las funciones.
+**Importante:** Si en Supabase ves "connection authorized", la base está bien; el fallo es que Vercel estaba sirviendo la SPA para `/api/*`. Ahora toda la API va en un solo handler Express: `api/[[...path]].js` usa el mismo backend que en local.
+
+**Cache del navegador:** Si en Network ves `304` en alumnos/grados, el navegador está usando respuesta en caché (a veces HTML viejo). Prueba con **Ctrl+Shift+R** (hard refresh) o en DevTools → Network → marcar "Disable cache" y recargar.
 
 ---
 

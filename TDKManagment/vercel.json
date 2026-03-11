@@ -3,7 +3,7 @@
   "outputDirectory": "frontend/dist",
   "installCommand": "npm install",
   "functions": {
-    "api/*.js": {
+    "api/[[...path]].js": {
       "memory": 256,
       "maxDuration": 10
     }
