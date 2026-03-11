@@ -19,7 +19,16 @@ app.use('/api/alumnos', alumnosRouter)
 app.use('/api/grados', gradosRouter)
 
 app.get('/api/health', (_, res) => {
-  res.json({ ok: true, message: 'API TDK Management' })
+  res.json({
+    ok: true,
+    message: 'API TDK Management',
+    // Para verificar rápidamente que Railway redeployó el último build
+    version:
+      process.env.RAILWAY_GIT_COMMIT_SHA ||
+      process.env.VERCEL_GIT_COMMIT_SHA ||
+      process.env.GIT_COMMIT ||
+      new Date().toISOString(),
+  })
 })
 
 export default app
