@@ -172,7 +172,7 @@ export default function Grados() {
         </div>
       )}
 
-      {vista === 'detalle' && seleccionBase && (
+      {seleccionBase && (
         <div ref={detalleRef} className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
