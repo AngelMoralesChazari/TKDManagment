@@ -24,8 +24,9 @@ En Vercel la app usa **Serverless Functions** (carpeta `api/`) que se ejecutan c
 
 ## 3. Configurar Vercel
 
-1. [vercel.com](https://vercel.com) → tu proyecto → **Settings** → **Environment Variables**.
-2. Añade **`DATABASE_URL`** con la connection string de Supabase (URI con la contraseña ya puesta).
-3. **Save** → **Redeploy** (Deployments → ⋮ → Redeploy).
+1. [vercel.com](https://vercel.com) → tu proyecto → **Settings**:
+   - **Root Directory:** debe ser la **raíz del repo** (vacío o `.`), no `frontend`. Así Vercel usa la carpeta `api/` de la raíz y la API responde en `/api/grados` y `/api/alumnos`.
+   - **Environment Variables:** añade **`DATABASE_URL`** con la connection string de Supabase (URI con la contraseña ya puesta).
+2. **Save** → **Redeploy** (Deployments → ⋮ → Redeploy).
 
 Después del redeploy, la web en Vercel usará Supabase; tu desarrollo local sigue usando PostgreSQL.
