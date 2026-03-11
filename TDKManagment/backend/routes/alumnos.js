@@ -9,10 +9,7 @@ router.get('/', async (req, res) => {
     const result = await query(`
       SELECT
         a.id_alumno AS id,
-        TRIM(COALESCE(
-          NULLIF(TRIM(COALESCE(a.nombre,'') || ' ' || COALESCE(a.apellido_paterno,'') || ' ' || COALESCE(a.apellido_materno,'')), ''),
-          a.nombre_completo
-        )) AS nombre,
+        TRIM(COALESCE(a.nombre,'') || ' ' || COALESCE(a.apellido_paterno,'') || ' ' || COALESCE(a.apellido_materno,'')) AS nombre,
         COALESCE(g.nombre_grado, 'Sin grado') AS grado,
         COALESCE(a.estatus, 'Activo') AS estado,
         a.fecha_admision AS ingreso
@@ -88,18 +85,18 @@ router.post('/', async (req, res) => {
     // 2. Insertar alumno con todos los campos (nombre desglosado, curp, historial de salud)
     const insertAlumno = await query(
       `INSERT INTO alumno (
-        nombre_completo, nombre, apellido_paterno, apellido_materno,
+        nombre, apellido_paterno, apellido_materno,
         sexo, fecha_nacimiento, fecha_admision, estatus, telefono, curp,
         alergias_sn, alergias_cuales, fracturas_sn, fracturas_cuales,
         operaciones_sn, operaciones_cuales, terapias_sn, terapias_cuales,
         id_tutor, id_colegiatura
       ) VALUES (
-        $1, $2, $3, $4, NULL, $5, $6, $7, $8, $9,
-        $10, $11, $12, $13, $14, $15, $16, $17, NULL, NULL
+        $1, $2, $3, NULL, $4, $5, $6, $7, $8,
+        $9, $10, $11, $12, $13, $14, $15, $16, NULL, NULL
       )
-      RETURNING id_alumno, nombre_completo, estatus, fecha_admision`,
+      RETURNING id_alumno, nombre, apellido_paterno, apellido_materno, estatus, fecha_admision`,
       [
-        nombreCompleto, nom || null, ap || null, am || null,
+        nom || null, ap || null, am || null,
         fecha_nacimiento || null, fechaAdmision, estado, telefono || null, (curp || '').trim() || null,
         Boolean(alergias_sn), alergias_cuales || null, Boolean(fracturas_sn), fracturas_cuales || null,
         Boolean(operaciones_sn), operaciones_cuales || null, Boolean(terapias_sn), terapias_cuales || null,
@@ -107,6 +104,7 @@ router.post('/', async (req, res) => {
     )
     const alumno = insertAlumno.rows[0]
     const idAlumno = alumno.id_alumno
+    const nombreMostrar = [alumno.nombre, alumno.apellido_paterno, alumno.apellido_materno].filter(Boolean).join(' ').trim() || nombreCompleto
 
     // 3. Si tenemos grado, registrar en historial_grado
     if (idGrado) {
@@ -119,7 +117,7 @@ router.post('/', async (req, res) => {
 
     res.status(201).json({
       id: idAlumno,
-      nombre: alumno.nombre_completo,
+      nombre: nombreMostrar,
       grado: idGrado ? grado : 'Sin grado',
       estado: alumno.estatus,
       ingreso: formatFecha(alumno.fecha_admision),

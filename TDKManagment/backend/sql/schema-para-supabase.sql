@@ -1,6 +1,3 @@
--- Ejecuta este archivo completo en Supabase (SQL Editor) para tener el mismo esquema que tu base local.
--- Orden: tablas sin FKs primero, luego las que dependen de otras.
-
 CREATE TABLE IF NOT EXISTS tutor (
   id_tutor SERIAL PRIMARY KEY,
   nombre_completo VARCHAR(100),
@@ -21,7 +18,6 @@ CREATE TABLE IF NOT EXISTS grado (
 
 CREATE TABLE IF NOT EXISTS alumno (
   id_alumno SERIAL PRIMARY KEY,
-  nombre_completo VARCHAR(100),
   nombre VARCHAR(50),
   apellido_paterno VARCHAR(50),
   apellido_materno VARCHAR(50),
