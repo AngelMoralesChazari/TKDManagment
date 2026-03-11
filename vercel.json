@@ -1,7 +1,0 @@
-{
-  "buildCommand": "cd TDKManagment/frontend && npm install && npm run build",
-  "outputDirectory": "TDKManagment/frontend/dist",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
-}
