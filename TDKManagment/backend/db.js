@@ -11,7 +11,11 @@ dotenv.config({ path: path.join(__dirname, '..', '.env') })
 const { Pool } = pg
 
 const pool = process.env.DATABASE_URL
-  ? new Pool({ connectionString: process.env.DATABASE_URL })
+  ? new Pool({
+      connectionString: process.env.DATABASE_URL,
+      // Supabase/hosted Postgres suele requerir SSL
+      ssl: process.env.DATABASE_URL?.includes('localhost') ? false : { rejectUnauthorized: false },
+    })
   : new Pool({
       host: process.env.PGHOST || 'localhost',
       port: parseInt(process.env.PGPORT || '5432', 10),
