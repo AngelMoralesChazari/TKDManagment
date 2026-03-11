@@ -137,6 +137,7 @@ router.post('/', async (req, res) => {
     operaciones_cuales,
     terapias_sn,
     terapias_cuales,
+    sexo,
   } = req.body
 
   const nom = (nombre || '').trim()
@@ -151,6 +152,35 @@ router.post('/', async (req, res) => {
   }
   const fechaAdmision = fecha_ingreso || new Date().toISOString().slice(0, 10)
   try {
+    // Validar CURP duplicada (si viene)
+    const curpTrim = (curp || '').trim()
+    if (curpTrim) {
+      const curpRes = await query(
+        'SELECT 1 FROM alumno WHERE curp = $1 LIMIT 1',
+        [curpTrim]
+      )
+      if (curpRes.rowCount > 0) {
+        return res.status(409).json({
+          error: 'CURP ya está registrada',
+        })
+      }
+    }
+
+    // Validar nombre + apellidos duplicado
+    const dupRes = await query(
+      `SELECT 1 FROM alumno
+       WHERE lower(nombre) = lower($1)
+         AND lower(COALESCE(apellido_paterno, '')) = lower($2)
+         AND lower(COALESCE(apellido_materno, '')) = lower($3)
+       LIMIT 1`,
+      [nom, ap || '', am || '']
+    )
+    if (dupRes.rowCount > 0) {
+      return res.status(409).json({
+        error: 'Ya existe un alumno con ese nombre y apellidos',
+      })
+    }
+
     // 1. Obtener id_grado por nombre (ej. "Blanca", "Amarilla")
     const gradoRes = await query(
       'SELECT id_grado FROM grado WHERE nombre_grado = $1 LIMIT 1',
@@ -167,13 +197,21 @@ router.post('/', async (req, res) => {
         operaciones_sn, operaciones_cuales, terapias_sn, terapias_cuales,
         id_tutor, id_colegiatura
       ) VALUES (
-        $1, $2, $3, NULL, $4, $5, $6, $7, $8,
-        $9, $10, $11, $12, $13, $14, $15, $16, NULL, NULL
+        $1, $2, $3,
+        $4, $5, $6, $7, $8, $9,
+        $10, $11, $12, $13,
+        $14, $15, $16, $17,
+        NULL, NULL
       )
       RETURNING id_alumno, nombre, apellido_paterno, apellido_materno, estatus, fecha_admision`,
       [
         nom || null, ap || null, am || null,
-        fecha_nacimiento || null, fechaAdmision, estado, telefono || null, (curp || '').trim() || null,
+        (sexo || null),
+        fecha_nacimiento || null,
+        fechaAdmision,
+        estado,
+        telefono || null,
+        curpTrim || null,
         Boolean(alergias_sn), alergias_cuales || null, Boolean(fracturas_sn), fracturas_cuales || null,
         Boolean(operaciones_sn), operaciones_cuales || null, Boolean(terapias_sn), terapias_cuales || null,
       ]
@@ -234,6 +272,7 @@ router.put('/:id', async (req, res) => {
     operaciones_cuales,
     terapias_sn,
     terapias_cuales,
+    sexo,
   } = req.body
 
   const nom = (nombre || '').trim()
@@ -246,10 +285,35 @@ router.put('/:id', async (req, res) => {
       error: 'Faltan datos: al menos nombre, grado y estado son obligatorios',
     })
   }
-
   const fechaAdmision = fecha_ingreso || new Date().toISOString().slice(0, 10)
 
   try {
+    const curpTrim = (curp || '').trim()
+    if (curpTrim) {
+      const curpRes = await query(
+        'SELECT 1 FROM alumno WHERE curp = $1 AND id_alumno <> $2 LIMIT 1',
+        [curpTrim, id]
+      )
+      if (curpRes.rowCount > 0) {
+        return res.status(409).json({ error: 'CURP ya está registrada en otro alumno' })
+      }
+    }
+
+    const dupRes = await query(
+      `SELECT 1 FROM alumno
+       WHERE lower(nombre) = lower($1)
+         AND lower(COALESCE(apellido_paterno, '')) = lower($2)
+         AND lower(COALESCE(apellido_materno, '')) = lower($3)
+         AND id_alumno <> $4
+       LIMIT 1`,
+      [nom, ap || '', am || '', id]
+    )
+    if (dupRes.rowCount > 0) {
+      return res.status(409).json({
+        error: 'Ya existe un alumno con ese nombre y apellidos',
+      })
+    }
+
     const gradoRes = await query(
       'SELECT id_grado FROM grado WHERE nombre_grado = $1 LIMIT 1',
       [grado.trim()]
@@ -261,30 +325,32 @@ router.put('/:id', async (req, res) => {
        SET nombre = $1,
            apellido_paterno = $2,
            apellido_materno = $3,
-           fecha_nacimiento = $4,
-           fecha_admision = $5,
-           estatus = $6,
-           telefono = $7,
-           curp = $8,
-           alergias_sn = $9,
-           alergias_cuales = $10,
-           fracturas_sn = $11,
-           fracturas_cuales = $12,
-           operaciones_sn = $13,
-           operaciones_cuales = $14,
-           terapias_sn = $15,
-           terapias_cuales = $16
-       WHERE id_alumno = $17
+           sexo = $4,
+           fecha_nacimiento = $5,
+           fecha_admision = $6,
+           estatus = $7,
+           telefono = $8,
+           curp = $9,
+           alergias_sn = $10,
+           alergias_cuales = $11,
+           fracturas_sn = $12,
+           fracturas_cuales = $13,
+           operaciones_sn = $14,
+           operaciones_cuales = $15,
+           terapias_sn = $16,
+           terapias_cuales = $17
+       WHERE id_alumno = $18
        RETURNING id_alumno, nombre, apellido_paterno, apellido_materno, estatus, fecha_admision`,
       [
         nom || null,
         ap || null,
         am || null,
+        (sexo || null),
         fecha_nacimiento || null,
         fechaAdmision,
         estado,
         telefono || null,
-        (curp || '').trim() || null,
+        curpTrim || null,
         Boolean(alergias_sn),
         alergias_cuales || null,
         Boolean(fracturas_sn),
@@ -323,6 +389,31 @@ router.put('/:id', async (req, res) => {
     console.error('Error en PUT /api/alumnos/:id:', err)
     res.status(500).json({
       error: 'Error al actualizar alumno',
+      detalle: err?.message || String(err),
+      code: err?.code,
+      name: err?.name,
+    })
+  }
+})
+
+// DELETE /api/alumnos/:id — eliminar alumno (y sus historiales/pagos relacionados)
+router.delete('/:id', async (req, res) => {
+  const id = parseInt(req.params.id, 10)
+  if (Number.isNaN(id)) {
+    return res.status(400).json({ error: 'ID de alumno inválido' })
+  }
+  try {
+    await query('DELETE FROM historial_grado WHERE id_alumno = $1', [id])
+    await query('DELETE FROM pago WHERE id_alumno = $1', [id])
+    const del = await query('DELETE FROM alumno WHERE id_alumno = $1 RETURNING id_alumno', [id])
+    if (del.rowCount === 0) {
+      return res.status(404).json({ error: 'Alumno no encontrado' })
+    }
+    res.json({ ok: true })
+  } catch (err) {
+    console.error('Error en DELETE /api/alumnos/:id:', err)
+    res.status(500).json({
+      error: 'Error al eliminar alumno',
       detalle: err?.message || String(err),
       code: err?.code,
       name: err?.name,

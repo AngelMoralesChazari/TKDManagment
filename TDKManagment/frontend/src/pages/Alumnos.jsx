@@ -29,6 +29,7 @@ export default function Alumnos() {
     fecha_nacimiento: '',
     curp: '',
     telefono: '',
+    sexo: '',
     alergias_sn: false,
     alergias_cuales: '',
     fracturas_sn: false,
@@ -105,6 +106,7 @@ export default function Alumnos() {
         fecha_nacimiento: data.fecha_nacimiento || '',
         curp: data.curp || '',
         telefono: data.telefono || '',
+        sexo: data.sexo || '',
         alergias_sn: !!data.alergias_sn,
         alergias_cuales: data.alergias_cuales || '',
         fracturas_sn: !!data.fracturas_sn,
@@ -143,6 +145,7 @@ export default function Alumnos() {
           fecha_nacimiento: form.fecha_nacimiento || undefined,
           curp: form.curp.trim() || undefined,
           telefono: form.telefono.trim() || undefined,
+          sexo: form.sexo || undefined,
           alergias_sn: form.alergias_sn,
           alergias_cuales: form.alergias_cuales.trim() || undefined,
           fracturas_sn: form.fracturas_sn,
@@ -172,6 +175,7 @@ export default function Alumnos() {
         fecha_nacimiento: '',
         curp: '',
         telefono: '',
+        sexo: '',
         alergias_sn: false,
         alergias_cuales: '',
         fracturas_sn: false,
@@ -333,6 +337,20 @@ export default function Alumnos() {
                     onChange={(e) => setForm((p) => ({ ...p, fecha_ingreso: e.target.value }))}
                     className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900"
                   />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Sexo</label>
+                  <select
+                    value={form.sexo}
+                    onChange={(e) => setForm((p) => ({ ...p, sexo: e.target.value }))}
+                    className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900"
+                  >
+                    <option value="">Selecciona...</option>
+                    <option value="F">Femenino</option>
+                    <option value="M">Masculino</option>
+                  </select>
                 </div>
               </div>
               <div>
@@ -538,6 +556,7 @@ export default function Alumnos() {
                       fecha_nacimiento: form.fecha_nacimiento || undefined,
                       curp: form.curp.trim() || undefined,
                       telefono: form.telefono.trim() || undefined,
+                      sexo: form.sexo || undefined,
                       alergias_sn: form.alergias_sn,
                       alergias_cuales: form.alergias_cuales.trim() || undefined,
                       fracturas_sn: form.fracturas_sn,
@@ -612,6 +631,20 @@ export default function Alumnos() {
                     onChange={(e) => setForm((p) => ({ ...p, fecha_ingreso: e.target.value }))}
                     className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900"
                   />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Sexo</label>
+                  <select
+                    value={form.sexo}
+                    onChange={(e) => setForm((p) => ({ ...p, sexo: e.target.value }))}
+                    className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900"
+                  >
+                    <option value="">Selecciona...</option>
+                    <option value="F">Femenino</option>
+                    <option value="M">Masculino</option>
+                  </select>
                 </div>
               </div>
               <div>
@@ -752,6 +785,34 @@ export default function Alumnos() {
               </div>
 
               <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!alumnoEditandoId) return
+                    if (!window.confirm('¿Seguro que quieres eliminar este alumno? Esta acción no se puede deshacer.')) return
+                    setEnviando(true)
+                    try {
+                      const res = await fetch(`${API_ALUMNOS}/${alumnoEditandoId}`, {
+                        method: 'DELETE',
+                      })
+                      const data = await res.json().catch(() => ({}))
+                      if (!res.ok) {
+                        const msg = data.detalle ? `${data.error || 'Error al eliminar'}: ${data.detalle}` : (data.error || 'Error al eliminar')
+                        throw new Error(msg)
+                      }
+                      setModalEditarAbierto(false)
+                      setAlumnoEditandoId(null)
+                      await cargarAlumnos()
+                    } catch (e) {
+                      setError(e.message || 'No se pudo eliminar el alumno')
+                    } finally {
+                      setEnviando(false)
+                    }
+                  }}
+                  className="px-3 py-2.5 rounded-lg border border-red-200 text-red-700 hover:bg-red-50 text-sm"
+                >
+                  Eliminar
+                </button>
                 <button
                   type="button"
                   onClick={() => {
