@@ -28,6 +28,14 @@ app.get('/api/health', (_, res) => {
       process.env.VERCEL_GIT_COMMIT_SHA ||
       process.env.GIT_COMMIT ||
       new Date().toISOString(),
+    dbHost: (() => {
+      try {
+        const u = new URL(process.env.DATABASE_URL || '')
+        return u.host
+      } catch {
+        return null
+      }
+    })(),
   })
 })
 

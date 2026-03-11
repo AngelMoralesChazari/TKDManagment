@@ -10,13 +10,26 @@ dotenv.config({ path: path.join(__dirname, '..', '.env') })
 
 const { Pool } = pg
 
-const pool = process.env.DATABASE_URL
+function stripDbUrlQuery(url) {
+  try {
+    const u = new URL(url)
+    // Evita que parámetros como sslmode manipulen la config interna de pg
+    u.search = ''
+    u.hash = ''
+    return u.toString()
+  } catch {
+    return url
+  }
+}
+
+const rawDbUrl = process.env.DATABASE_URL
+const connectionString = rawDbUrl ? stripDbUrlQuery(rawDbUrl) : undefined
+
+const pool = connectionString
   ? new Pool({
-      connectionString: process.env.DATABASE_URL,
-      // Supabase/hosted Postgres suele requerir SSL (y a veces cadena con certificados intermedios)
-      ssl: process.env.DATABASE_URL?.includes('localhost')
-        ? false
-        : { rejectUnauthorized: false },
+      connectionString,
+      // Supabase/hosted Postgres suele requerir SSL; aceptamos la cadena de certificados del proveedor
+      ssl: connectionString.includes('localhost') ? false : { rejectUnauthorized: false },
     })
   : new Pool({
       host: process.env.PGHOST || 'localhost',
