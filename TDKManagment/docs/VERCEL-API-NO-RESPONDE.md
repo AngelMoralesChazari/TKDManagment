@@ -1,6 +1,8 @@
 # Si en Vercel sale "Unexpected token '<'" o "Sin grados"
 
-Eso significa que las peticiones a `/api/grados` y `/api/alumnos` están recibiendo **HTML** (la página de la app) en lugar de **JSON**. La API no se está ejecutando.
+Eso significa que las peticiones a `/api/grados` y `/api/alumnos` están recibiendo **HTML** (la página de la app) en lugar de **JSON**. La API no se está ejecutando en esa URL.
+
+**Importante:** Si en Supabase ves "connection authorized", la base está bien; el fallo es que Vercel está sirviendo la SPA para `/api/*` en lugar de ejecutar las funciones.
 
 ---
 
@@ -17,31 +19,19 @@ https://tkd-managment-git-main-angel-morales-projects-94e68cfb.vercel.app/api/he
 
 ---
 
-## 2. Ajustar Root Directory en Vercel
+## 2. Root Directory y último deploy
 
-Para que Vercel use la carpeta `api/` de tu repo:
+En Vercel la carpeta `api/` solo se usa si está en la **raíz del proyecto** que Vercel usa.
 
 1. Entra en [vercel.com](https://vercel.com) → tu proyecto **tkd-managment**.
-2. **Settings** → **General**.
-3. En **Root Directory**:
-   - Si pone **`frontend`**: quítalo. Déjalo **vacío** (raíz del repo).
-   - Así Vercel usará el `vercel.json` y la carpeta `api/` que están en la **raíz** del repositorio (junto a `frontend/`, `backend/`, etc.).
-4. **Save**.
-5. **Deployments** → **Redeploy** (último deploy → ⋮ → Redeploy).
-
-Vuelve a abrir en el navegador:
-
-```
-https://tu-url.vercel.app/api/health
-```
-
-Si ahora sí ves el JSON, la API ya está respondiendo. Prueba también:
-
-```
-https://tu-url.vercel.app/api/grados
-```
-
-(debería devolver un array de grados o un error en JSON, no HTML).
+2. **Settings** → **General** → **Root Directory**:
+   - Si pone **`frontend`**: bórralo y déjalo **vacío**. Así se usa la raíz del repo, donde están `api/`, `lib/`, `vercel.json` y `package.json` (con `pg`).
+   - Si ya está vacío, el problema puede ser que el último deploy no tenga los archivos nuevos. Sigue al paso 3.
+3. Asegúrate de haber hecho **commit y push** de todo (sobre todo `api/`, `lib/`, `vercel.json` y `package.json` en la raíz).
+4. **Deployments** → **Redeploy** (⋮ del último deploy → Redeploy). Espera a que termine.
+5. Prueba de nuevo en el navegador:
+   - `https://tu-url.vercel.app/api/health` → debe devolver `{"ok":true,"message":"API funciona"}`.
+   - `https://tu-url.vercel.app/api/grados` → debe devolver un JSON (array o error), nunca HTML.
 
 ---
 
