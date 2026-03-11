@@ -114,3 +114,22 @@ Verás una URL tipo `http://localhost:5173`. Esa es la app.
    Deberías ver el alumno recién creado y su grado asignado.
 
 A partir de ahí puedes seguir registrando alumnos desde la app y haciendo todas las consultas que quieras en pgAdmin sobre las tablas `alumno`, `grado`, `historial_grado`, etc.
+
+---
+
+## Si sale "no existe la base de datos 'tdk_management'"
+
+Ese mensaje significa que en tu PostgreSQL **no hay una base llamada exactamente** `tdk_management`. En el `.env` está puesto `PGDATABASE=tdk_management`, pero la base donde tú ejecutaste el script y donde están las tablas tiene **otro nombre**.
+
+**Qué hacer:**
+
+1. Abre **pgAdmin** y en el panel izquierdo mira bajo **Servers → tu servidor → Databases**. Ahí aparece el nombre de cada base (por ejemplo `postgres`, `TKD`, `academia`, etc.).
+2. El nombre de la base donde hiciste el `seed-grados.sql` y donde ves las tablas (alumno, grado, etc.) es el que debe usar la app.
+3. Abre el archivo **`.env`** (está en la raíz del proyecto `TDKManagment` o en `backend`, según dónde lo tengas).
+4. Cambia la línea `PGDATABASE=tdk_management` y pon el **nombre exacto** de tu base, por ejemplo:
+   - Si en pgAdmin la base se llama `postgres` → `PGDATABASE=postgres`
+   - Si se llama `TKD` → `PGDATABASE=TKD`
+   - etc.
+5. Guarda el `.env`, **reinicia el backend** (Ctrl+C y de nuevo `npm run dev` en la carpeta `backend`) y recarga la página de la app.
+
+A partir de ahí la app usará la misma base que ves en pgAdmin y los grados deberían cargarse.
