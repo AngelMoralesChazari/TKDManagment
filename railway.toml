@@ -1,0 +1,9 @@
+[build]
+# Forzar a Railway a construir el backend (no la raíz del repo)
+builder = "DOCKERFILE"
+dockerfilePath = "TDKManagment/backend/Dockerfile"
+
+[deploy]
+startCommand = "npm start"
+healthcheckPath = "/api/health"
+
