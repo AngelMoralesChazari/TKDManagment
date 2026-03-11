@@ -1,4 +1,3 @@
--- Cintas de color (kups: 10 → 1)
 INSERT INTO grado (nombre_grado, nivel) VALUES
   ('Blanca',                    1),   -- sin kup
   ('Naranja 10mo kup',          2),
@@ -12,17 +11,14 @@ INSERT INTO grado (nombre_grado, nivel) VALUES
   ('Roja 2do kup',             10),
   ('Roja avanzada 1er kup',    11),
 
-  -- Parciales (revisiones previas a cinta negra / poom)
   ('Parcial 1',                12),
   ('Parcial 2',                13),
   ('Parcial 3',                14),
 
-  -- Poom (cintas negras infantiles, menores 15 años)
   ('Negra 1er poom',          15),
   ('Negra 2do poom',          16),
   ('Negra 3er poom',          17),
 
-  -- Dan (cintas negras)
   ('Negra 1er dan',           18),
   ('Negra 2do dan',           19),
   ('Negra 3er dan',           20),
