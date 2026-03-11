@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { API_GRADOS, API_ALUMNOS } from '../api.js'
 
 function colorClase(nombre) {
@@ -51,7 +51,7 @@ export default function Grados() {
   const [errorAlumnos, setErrorAlumnos] = useState(null)
   const [seleccionBase, setSeleccionBase] = useState(null)
   const [filtroTipo, setFiltroTipo] = useState('base') // 'base' | 'avanzado'
-  const [vista, setVista] = useState('resumen') // 'resumen' | 'detalle'
+  const detalleRef = useRef(null)
 
   useEffect(() => {
     let ok = true
@@ -125,90 +125,55 @@ export default function Grados() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-900">Grados</h2>
-          <p className="text-slate-600 mt-0.5">Cintas y distribución de alumnos</p>
-        </div>
-        <div className="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-0.5">
-          <button
-            type="button"
-            onClick={() => setVista('resumen')}
-            className={`px-3 py-1.5 text-sm rounded-md ${
-              vista === 'resumen'
-                ? 'bg-white text-slate-900 shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Resumen de grados
-          </button>
-          <button
-            type="button"
-            onClick={() => setVista('detalle')}
-            className={`px-3 py-1.5 text-sm rounded-md ${
-              vista === 'detalle'
-                ? 'bg-white text-slate-900 shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Alumnos por grado
-          </button>
-        </div>
+      <div>
+        <h2 className="text-2xl font-bold text-slate-900">Grados</h2>
+        <p className="text-slate-600 mt-0.5">Cintas y distribución de alumnos</p>
       </div>
 
-      {vista === 'resumen' && (
-        <>
-          {cargando ? (
-            <p className="text-slate-500">Cargando grados...</p>
-          ) : listaBases.length === 0 ? (
-            <p className="text-slate-500">No hay grados cargados. Ejecuta seed-grados.sql en pgAdmin.</p>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {listaBases.map((grupo) => {
-                const baseNombre = grupo.base
-                const color = colorClase(baseNombre)
-                const totalBase = alumnos.filter((a) => gradoBase(a.grado) === baseNombre).length
-                return (
-                  <div
-                    key={baseNombre}
-                    onClick={() => {
-                      setSeleccionBase(baseNombre)
-                      setFiltroTipo('base')
-                      setVista('detalle')
-                    }}
-                    className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4 cursor-pointer"
-                  >
-                    {color === 'poom' ? (
-                      <div className="w-14 h-14 rounded-full shrink-0 overflow-hidden flex ring-2 ring-slate-200">
-                        <div className="w-1/2 h-full bg-red-600" />
-                        <div className="w-1/2 h-full bg-slate-900" />
-                      </div>
-                    ) : (
-                      <div className={`w-14 h-14 rounded-full shrink-0 ${color} ring-2 ring-slate-200`} />
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-slate-900">Cinta {baseNombre}</p>
-                      <p className="text-sm text-slate-500">
-                        {cargandoAlumnos ? 'Contando alumnos...' : `${totalBase} alumno${totalBase === 1 ? '' : 's'}`}
-                      </p>
-                    </div>
+      {cargando ? (
+        <p className="text-slate-500">Cargando grados...</p>
+      ) : listaBases.length === 0 ? (
+        <p className="text-slate-500">No hay grados cargados. Ejecuta seed-grados.sql en pgAdmin.</p>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {listaBases.map((grupo) => {
+            const baseNombre = grupo.base
+            const color = colorClase(baseNombre)
+            const totalBase = alumnos.filter((a) => gradoBase(a.grado) === baseNombre).length
+            return (
+              <div
+                key={baseNombre}
+                onClick={() => {
+                  setSeleccionBase(baseNombre)
+                  setFiltroTipo('base')
+                  if (detalleRef.current) {
+                    detalleRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                  }
+                }}
+                className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4 cursor-pointer"
+              >
+                {color === 'poom' ? (
+                  <div className="w-14 h-14 rounded-full shrink-0 overflow-hidden flex ring-2 ring-slate-200">
+                    <div className="w-1/2 h-full bg-red-600" />
+                    <div className="w-1/2 h-full bg-slate-900" />
                   </div>
-                )
-              })}
-            </div>
-          )}
-
-          <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
-            <h3 className="font-semibold text-slate-900 mb-4">Próximo examen de grados</h3>
-            <p className="text-slate-600 text-sm">
-              Programa exámenes en la sección Exámenes. La fecha y los grados habilitados se mostrarán aquí.
-            </p>
-          </div>
-        </>
+                ) : (
+                  <div className={`w-14 h-14 rounded-full shrink-0 ${color} ring-2 ring-slate-200`} />
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold text-slate-900">Cinta {baseNombre}</p>
+                  <p className="text-sm text-slate-500">
+                    {cargandoAlumnos ? 'Contando alumnos...' : `${totalBase} alumno${totalBase === 1 ? '' : 's'}`}
+                  </p>
+                </div>
+              </div>
+            )
+          })}
+        </div>
       )}
 
       {vista === 'detalle' && seleccionBase && (
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
+        <div ref={detalleRef} className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
               <h3 className="font-semibold text-slate-900">
