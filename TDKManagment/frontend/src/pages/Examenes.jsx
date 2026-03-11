@@ -1,15 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
-const examenesPlaceholder = [
-  { id: 1, fecha: '15 Mar 2025', grados: 'Blanca, Naranja, Amarilla', inscritos: 12, estado: 'Programado' },
-  { id: 2, fecha: '10 Ene 2025', grados: 'Verde, Azul', inscritos: 8, estado: 'Realizado' },
-  { id: 3, fecha: '22 Nov 2024', grados: 'Blanca a Roja', inscritos: 18, estado: 'Realizado' },
-  { id: 4, fecha: '28 Mar 2025', grados: 'Roja, Poom, Negra', inscritos: 0, estado: 'Programado' },
-]
-
-const GRADOS_OPCIONES = ['Blanca', 'Naranja', 'Amarilla', 'Verde', 'Azul', 'Roja', 'Poom', 'Negra']
+const API_GRADOS = import.meta.env.DEV ? 'http://localhost:3001/api/grados' : '/api/grados'
 
 export default function Examenes() {
+  const [examenes, setExamenes] = useState([])
+  const [gradosOpciones, setGradosOpciones] = useState([])
   const [modalAbierto, setModalAbierto] = useState(false)
   const [form, setForm] = useState({
     fecha: '',
@@ -17,6 +12,13 @@ export default function Examenes() {
     observaciones: '',
     grados: [],
   })
+
+  useEffect(() => {
+    fetch(API_GRADOS)
+      .then((res) => res.ok ? res.json() : [])
+      .then((data) => setGradosOpciones(Array.isArray(data) ? data : []))
+      .catch(() => setGradosOpciones([]))
+  }, [])
 
   const toggleGrado = (grado) => {
     setForm((prev) => ({
@@ -29,15 +31,8 @@ export default function Examenes() {
 
   const handleCrear = (e) => {
     e.preventDefault()
-    // Simulado: solo cerramos el modal
     setModalAbierto(false)
     setForm({ fecha: '', lugar: 'Dojo principal', observaciones: '', grados: [] })
-  }
-
-  const estadoClase = (estado) => {
-    if (estado === 'Programado') return 'text-primary-600 font-medium'
-    if (estado === 'Realizado') return 'text-emerald-600 font-medium'
-    return 'text-slate-500'
   }
 
   return (
@@ -71,30 +66,34 @@ export default function Examenes() {
               </tr>
             </thead>
             <tbody>
-              {examenesPlaceholder.map((ex) => (
-                <tr key={ex.id} className="border-b border-slate-100 hover:bg-slate-50/50">
-                  <td className="px-4 py-3 font-medium text-slate-900">{ex.fecha}</td>
-                  <td className="px-4 py-3 text-slate-700">{ex.grados}</td>
-                  <td className="px-4 py-3 text-slate-700">{ex.inscritos}</td>
-                  <td className="px-4 py-3">
-                    <span className={estadoClase(ex.estado)}>{ex.estado}</span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <button
-                      type="button"
-                      className="text-sm text-primary-600 hover:underline"
-                    >
-                      Ver
-                    </button>
+              {examenes.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-4 py-8 text-center text-slate-500">
+                    No hay exámenes. Crea uno con el botón &quot;Nuevo examen&quot;.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                examenes.map((ex) => (
+                  <tr key={ex.id} className="border-b border-slate-100 hover:bg-slate-50/50">
+                    <td className="px-4 py-3 font-medium text-slate-900">{ex.fecha}</td>
+                    <td className="px-4 py-3 text-slate-700">{ex.grados}</td>
+                    <td className="px-4 py-3 text-slate-700">{ex.inscritos}</td>
+                    <td className="px-4 py-3">
+                      <span className={ex.estado === 'Programado' ? 'text-primary-600 font-medium' : 'text-emerald-600 font-medium'}>
+                        {ex.estado}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <button type="button" className="text-sm text-primary-600 hover:underline">Ver</button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
       </div>
 
-      {/* Modal Nuevo examen (simulado) */}
       {modalAbierto && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
@@ -119,15 +118,15 @@ export default function Examenes() {
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">Grados a evaluar</label>
                 <div className="flex flex-wrap gap-2">
-                  {GRADOS_OPCIONES.map((g) => (
-                    <label key={g} className="inline-flex items-center gap-1.5">
+                  {gradosOpciones.map((g) => (
+                    <label key={g.id_grado} className="inline-flex items-center gap-1.5">
                       <input
                         type="checkbox"
-                        checked={form.grados.includes(g)}
-                        onChange={() => toggleGrado(g)}
+                        checked={form.grados.includes(g.nombre_grado)}
+                        onChange={() => toggleGrado(g.nombre_grado)}
                         className="rounded border-slate-300 text-primary-600"
                       />
-                      <span className="text-sm text-slate-700">{g}</span>
+                      <span className="text-sm text-slate-700">{g.nombre_grado}</span>
                     </label>
                   ))}
                 </div>
