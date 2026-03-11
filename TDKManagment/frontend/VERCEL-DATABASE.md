@@ -29,4 +29,4 @@ En Vercel la app usa **Serverless Functions** (carpeta `api/`) que se ejecutan c
    - **Environment Variables:** añade **`DATABASE_URL`** con la connection string de Supabase (URI con la contraseña ya puesta).
 2. **Save** → **Redeploy** (Deployments → ⋮ → Redeploy).
 
-Después del redeploy, la web en Vercel usará Supabase; tu desarrollo local sigue usando PostgreSQL.
+Después del redeploy, la web en Vercel usará Supabase; tu desarrollo local sigue usando PostgreSQL
