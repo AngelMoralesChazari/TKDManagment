@@ -1,5 +1,5 @@
 INSERT INTO grado (nombre_grado, nivel) VALUES
-  ('Blanca',                    1),   -- sin kup
+  ('Blanca',                    1),  
   ('Naranja 10mo kup',          2),
   ('Naranja avanzada 9no kup',  3),
   ('Amarilla 8vo kup',          4),
