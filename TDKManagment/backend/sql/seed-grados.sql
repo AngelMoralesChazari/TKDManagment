@@ -21,11 +21,4 @@ INSERT INTO grado (nombre_grado, nivel) VALUES
 
   ('Negra 1er dan',           18),
   ('Negra 2do dan',           19),
-  ('Negra 3er dan',           20),
-  ('Negra 4to dan',           21),
-  ('Negra 5to dan',           22),
-  ('Negra 6to dan',           23),
-  ('Negra 7mo dan',           24),
-  ('Negra 8vo dan',           25),
-  ('Negra 9no dan',           26),
-  ('Negra 10mo dan',          27);
+  ('Negra 3er dan',           20);
