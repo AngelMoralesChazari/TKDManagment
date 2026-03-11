@@ -79,3 +79,4 @@ Para que Vercel no intente usar la API propia:
 | **Supabase**| Base de datos. La usa solo el backend en Railway. |
 
 Con esto la conexión no depende de que Vercel ejecute funciones; todo el backend corre en Railway y el frontend en Vercel solo llama a esa URL.
+  esoer funcione
