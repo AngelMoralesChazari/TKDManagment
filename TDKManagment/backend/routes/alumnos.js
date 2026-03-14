@@ -11,6 +11,7 @@ router.get('/', async (req, res) => {
         a.id_alumno AS id,
         TRIM(COALESCE(a.nombre,'') || ' ' || COALESCE(a.apellido_paterno,'') || ' ' || COALESCE(a.apellido_materno,'')) AS nombre,
         COALESCE(g.nombre_grado, 'Sin grado') AS grado,
+        COALESCE(g.nivel, 0) AS nivel,
         COALESCE(a.estatus, 'Activo') AS estado,
         a.fecha_admision AS ingreso
       FROM alumno a
@@ -26,8 +27,10 @@ router.get('/', async (req, res) => {
       id: r.id,
       nombre: r.nombre,
       grado: r.grado,
+      nivel: r.nivel != null ? r.nivel : 0,
       estado: r.estado,
       ingreso: r.ingreso ? formatFecha(r.ingreso) : '-',
+      fecha_ingreso: r.ingreso ? formatFechaISO(r.ingreso) : null,
     }))
     res.json(rows)
   } catch (err) {
@@ -426,6 +429,12 @@ function formatFecha(date) {
   const d = new Date(date)
   const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
   return `${meses[d.getMonth()]} ${d.getFullYear()}`
+}
+
+function formatFechaISO(date) {
+  if (!date) return null
+  const d = new Date(date)
+  return d.toISOString().slice(0, 10)
 }
 
 export default router

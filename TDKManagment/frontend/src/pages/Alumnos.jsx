@@ -19,6 +19,10 @@ export default function Alumnos() {
   const [modalEditarAbierto, setModalEditarAbierto] = useState(false)
   const [alumnoEditandoId, setAlumnoEditandoId] = useState(null)
   const [enviando, setEnviando] = useState(false)
+  const [buscar, setBuscar] = useState('')
+  const [filtroEstado, setFiltroEstado] = useState('')
+  const [ordenarPor, setOrdenarPor] = useState('nombre') // nombre | grado | estado | fecha_ingreso
+  const [ordenDir, setOrdenDir] = useState('asc') // asc | desc
   const [form, setForm] = useState({
     nombre: '',
     apellido_paterno: '',
@@ -85,6 +89,32 @@ export default function Alumnos() {
       setForm((f) => ({ ...f, grado: grados[0].nombre_grado }))
     }
   }, [modalAbierto, grados])
+
+  const textoBusqueda = buscar.trim().toLowerCase()
+  const alumnosFiltrados = alumnos
+    .filter((a) => {
+      if (textoBusqueda && !(a.nombre || '').toLowerCase().includes(textoBusqueda)) return false
+      if (filtroEstado && (a.estado || '') !== filtroEstado) return false
+      return true
+    })
+    .slice()
+    .sort((a, b) => {
+      let cmp = 0
+      if (ordenarPor === 'nombre') {
+        cmp = (a.nombre || '').localeCompare(b.nombre || '', 'es')
+      } else if (ordenarPor === 'grado') {
+        const nA = a.nivel != null ? a.nivel : 0
+        const nB = b.nivel != null ? b.nivel : 0
+        cmp = nA - nB
+      } else if (ordenarPor === 'estado') {
+        cmp = (a.estado || '').localeCompare(b.estado || '', 'es')
+      } else if (ordenarPor === 'fecha_ingreso') {
+        const dA = a.fecha_ingreso || ''
+        const dB = b.fecha_ingreso || ''
+        cmp = dA.localeCompare(dB)
+      }
+      return ordenDir === 'asc' ? cmp : -cmp
+    })
 
   const abrirEditar = async (alumnoId) => {
     setError(null)
@@ -196,18 +226,76 @@ export default function Alumnos() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-900">Alumnos</h2>
-          <p className="text-slate-600 mt-0.5">Expedientes y estado de los alumnos</p>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900">Alumnos</h2>
+            <p className="text-slate-600 mt-0.5">Expedientes y estado de los alumnos</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <label className="sr-only" htmlFor="buscar-alumno">Buscar alumno</label>
+            <input
+              id="buscar-alumno"
+              type="text"
+              value={buscar}
+              onChange={(e) => setBuscar(e.target.value)}
+              placeholder="Buscar alumno"
+              className="px-3 py-2 rounded-lg border border-slate-200 text-slate-900 placeholder:text-slate-400 w-44 sm:w-52"
+            />
+            <button
+              type="button"
+              onClick={() => setModalAbierto(true)}
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 transition-colors"
+            >
+              + Nuevo alumno
+            </button>
+          </div>
         </div>
-        <button
-          type="button"
-          onClick={() => setModalAbierto(true)}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 transition-colors"
-        >
-          + Nuevo alumno
-        </button>
+
+        <div className="flex flex-wrap items-center gap-3 text-sm">
+          <span className="text-slate-600 font-medium">Ordenar por:</span>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => { setOrdenarPor('nombre'); setOrdenDir((d) => (ordenarPor === 'nombre' ? (d === 'asc' ? 'desc' : 'asc') : 'asc')) }}
+              className={`px-3 py-1.5 rounded-lg border ${ordenarPor === 'nombre' ? 'border-primary-500 bg-primary-50 text-primary-800' : 'border-slate-200 text-slate-700 hover:bg-slate-50'}`}
+            >
+              Nombre {ordenarPor === 'nombre' && (ordenDir === 'asc' ? 'A→Z' : 'Z→A')}
+            </button>
+            <button
+              type="button"
+              onClick={() => { setOrdenarPor('grado'); setOrdenDir((d) => (ordenarPor === 'grado' ? (d === 'asc' ? 'desc' : 'asc') : 'asc')) }}
+              className={`px-3 py-1.5 rounded-lg border ${ordenarPor === 'grado' ? 'border-primary-500 bg-primary-50 text-primary-800' : 'border-slate-200 text-slate-700 hover:bg-slate-50'}`}
+            >
+              Grado {ordenarPor === 'grado' && (ordenDir === 'asc' ? '↑' : '↓')}
+            </button>
+            <button
+              type="button"
+              onClick={() => { setOrdenarPor('estado'); setOrdenDir((d) => (ordenarPor === 'estado' ? (d === 'asc' ? 'desc' : 'asc') : 'asc')) }}
+              className={`px-3 py-1.5 rounded-lg border ${ordenarPor === 'estado' ? 'border-primary-500 bg-primary-50 text-primary-800' : 'border-slate-200 text-slate-700 hover:bg-slate-50'}`}
+            >
+              Estado
+            </button>
+            <button
+              type="button"
+              onClick={() => { setOrdenarPor('fecha_ingreso'); setOrdenDir((d) => (ordenarPor === 'fecha_ingreso' ? (d === 'asc' ? 'desc' : 'asc') : 'desc')) }}
+              className={`px-3 py-1.5 rounded-lg border ${ordenarPor === 'fecha_ingreso' ? 'border-primary-500 bg-primary-50 text-primary-800' : 'border-slate-200 text-slate-700 hover:bg-slate-50'}`}
+            >
+              F. ingreso {ordenarPor === 'fecha_ingreso' && (ordenDir === 'asc' ? '↑' : '↓')}
+            </button>
+          </div>
+          <span className="text-slate-500">Estado:</span>
+          <select
+            value={filtroEstado}
+            onChange={(e) => setFiltroEstado(e.target.value)}
+            className="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-700 bg-white"
+          >
+            <option value="">Todos</option>
+            {ESTADOS.map((e) => (
+              <option key={e} value={e}>{e}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {error && (
@@ -235,14 +323,16 @@ export default function Alumnos() {
                     Cargando alumnos...
                   </td>
                 </tr>
-              ) : alumnos.length === 0 ? (
+              ) : alumnosFiltrados.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-4 py-8 text-center text-slate-500">
-                    No hay alumnos registrados. Agrega uno con &quot;Nuevo alumno&quot;.
+                    {alumnos.length === 0
+                      ? 'No hay alumnos registrados. Agrega uno con "Nuevo alumno".'
+                      : 'Ningún alumno coincide con el filtro o la búsqueda.'}
                   </td>
                 </tr>
               ) : (
-                alumnos.map((a) => (
+                alumnosFiltrados.map((a) => (
                   <tr key={a.id} className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors">
                     <td className="px-4 py-3 font-medium text-slate-900">{a.nombre}</td>
                     <td className="px-4 py-3 text-slate-700">{a.grado}</td>
